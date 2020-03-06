@@ -1,27 +1,24 @@
 pipeline {
-    
-    agent any
+   agent any
 
-    environment
-    {
-        PATH="/opt/apache-maven-3.6.3/bin:$PATH"
-    }
-	
-    stages {
-    	stage('GIT checkout'){
-		steps{
-			checkout changelog: false, poll: false, 
-			scm: [$class: 'GitSCM', branches: [[name: '*/master']], 
-			doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/nevin-cleetus/hello.git']]]
-		}
-	}
-		
-	stage('build && SonarQube analysis') {
+   stages {
+      stage('SCM Git clone') {
+         steps {
+            // Get some code from a GitHub repository
+            git 'https://github.com/nimmnisanthosh/hello-1.git'
 
-		steps {
-			echo 'This is a minimal pipeline.'
-			sh 'mvn clean package sonar:sonar -Dsonar.projectKey=MyHello -Dsonar.host.url=http://13.235.242.47:9000/sonar -Dsonar.login=d4b7a84c8da51ff1a211392a5e99344a9e0384e7'
-		}
-	}
-    }	    
+         }
+
+      }
+      stage('SCM Maven build') {
+          steps {
+               // Run Maven on a Unix agent.
+            sh "/opt/maven/bin/mvn clean package"
+
+            // To run Maven on a Windows agent, use
+            // bat "mvn -Dmaven.test.failure.ignore=true clean package"
+          }
+      }
+   }
 }
+
